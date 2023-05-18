@@ -1,0 +1,26 @@
+{
+  "users": [
+    {
+      "id": "23",
+      "firstName": "Aishwarya",
+      "age": 30,
+      "companyId": "2"
+    },
+    {
+      "id": "21",
+      "firstName": "Rohit",
+      "age": 32,
+      "companyId": "1"
+    },
+    {
+      "id": "20",
+      "firstName": "Ojas",
+      "age": 29,
+      "companyId": "2"
+    }
+  ],
+  "companies": [
+    { "id": "1", "name": "Cisco", "description": "Routers" },
+    { "id": "2", "name": "John Deere", "description": "Tractor" }
+  ]
+}

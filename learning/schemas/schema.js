@@ -1,17 +1,22 @@
 const graphql = require("graphql");
 const _ = require("lodash");
+const axios = require("axios");
 
 const { GraphQLObjectType, GraphQLString, GraphQLInt, GraphQLSchema } = graphql;
 
-const users = [
-  { id: "23", firstName: "Aishwarya", age: 30 },
-  { id: "20", firstName: "Rohit", age: 32 },
-  { id: "19", firstName: "Ojas", age: 29 },
-];
+const CompanyType = new GraphQLObjectType({
+  name: "Company",
+  fields: {
+    id: { type: GraphQLString },
+    name: { type: GraphQLString },
+    description: { type: GraphQLString },
+  },
+});
 
 /**
  * GraphQLObjectType instructs the presence of the user in our application.
  * We create a User type which represents a user and we define user's properties
+ * We need resolve function here to fetch the company id of a particular company
  */
 const UserType = new GraphQLObjectType({
   name: "User",
@@ -19,6 +24,15 @@ const UserType = new GraphQLObjectType({
     id: { type: GraphQLString },
     firstName: { type: GraphQLString },
     age: { type: GraphQLInt },
+    company: {
+      type: CompanyType,
+      resolve(parentValue, args) {
+        console.log(parentValue, args);
+        return axios
+          .get(`http://localhost:3000/companies/${parentValue.companyId}`)
+          .then((response) => response.data);
+      },
+    },
   },
 });
 
@@ -37,10 +51,15 @@ const RootQuery = new GraphQLObjectType({
       type: UserType,
       args: { id: { type: GraphQLString } },
       resolve(parentValue, args) {
-        return _.find(users, { id: args.id });
+        //Fecthing data from another server (here we mock other server using json server)
+        return axios
+          .get(`http://localhost:3000/users/${args.id}`)
+          .then((response) => response.data);
       },
     },
   },
 });
+
+//
 
 module.exports = new GraphQLSchema({ query: RootQuery });
