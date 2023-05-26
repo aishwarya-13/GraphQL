@@ -2,25 +2,49 @@ const graphql = require("graphql");
 const _ = require("lodash");
 const axios = require("axios");
 
-const { GraphQLObjectType, GraphQLString, GraphQLInt, GraphQLSchema } = graphql;
+const {
+  GraphQLObjectType,
+  GraphQLString,
+  GraphQLInt,
+  GraphQLSchema,
+  GraphQLList,
+  GraphQLNonNull,
+} = graphql;
+
+/**
+ * Here we have circular reference between UserType and CompanyType (User depends on Company and Company depends on User)
+ * So to solve this issue wrap the fields object in arrow function.
+ * So here the arrow function returns the object containing id, name, description, users.
+ * So this function will not be executed until the entire file has been executed
+ * The UserType is now inside of the closure scope of this arrow function
+ */
 
 const CompanyType = new GraphQLObjectType({
   name: "Company",
-  fields: {
+  fields: () => ({
     id: { type: GraphQLString },
     name: { type: GraphQLString },
     description: { type: GraphQLString },
-  },
+    users: {
+      type: new GraphQLList(UserType), //since we will get list of users we use GraphQLList type
+      resolve(parentValue, args) {
+        return axios
+          .get(`http://localhost:3000/companies/${parentValue.id}/users`)
+          .then((res) => res.data);
+      },
+    },
+  }),
 });
 
 /**
  * GraphQLObjectType instructs the presence of the user in our application.
  * We create a User type which represents a user and we define user's properties
  * We need resolve function here to fetch the company id of a particular company
+ * ^^ parentValue gives the instance of company
  */
 const UserType = new GraphQLObjectType({
   name: "User",
-  fields: {
+  fields: () => ({
     id: { type: GraphQLString },
     firstName: { type: GraphQLString },
     age: { type: GraphQLInt },
@@ -29,11 +53,11 @@ const UserType = new GraphQLObjectType({
       resolve(parentValue, args) {
         console.log(parentValue, args);
         return axios
-          .get(`http://localhost:3000/companies/${parentValue.companyId}`)
+          .get(`http://localhost:3000/companies/${parentValue.companyId}`) //parentValue gives the instance of company
           .then((response) => response.data);
       },
     },
-  },
+  }),
 });
 
 /**
@@ -52,14 +76,140 @@ const RootQuery = new GraphQLObjectType({
       args: { id: { type: GraphQLString } },
       resolve(parentValue, args) {
         //Fecthing data from another server (here we mock other server using json server)
+        console.log(args.id);
         return axios
           .get(`http://localhost:3000/users/${args.id}`)
           .then((response) => response.data);
       },
     },
+    company: {
+      type: CompanyType,
+      //(args object tells our schema that whenever someone tries to access this field, we expect them to be providing
+      //this ID argument and ID should be provided as a string)
+      args: { id: { type: GraphQLString } },
+      resolve(parentValue, args) {
+        return axios
+          .get(`http://localhost:3000/companies/${args.id}`)
+          .then((resp) => {
+            console.log(resp);
+            return resp.data;
+          });
+      },
+    },
   },
 });
 
-//
+/**
+ * GraphQLNonNull - puts validation on arguments.
+ * For ex: firstName cannot be null
+ */
+const Mutation = new GraphQLObjectType({
+  name: "Mutation",
+  fields: {
+    addUser: {
+      type: UserType, //return type of data.The type of data resolve() function will return
+      args: {
+        firstName: {
+          type: new GraphQLNonNull(GraphQLString),
+        },
+        age: {
+          type: new GraphQLNonNull(GraphQLInt),
+        },
+        companyId: {
+          type: GraphQLString,
+        },
+      }, //arguments to be passed into the resolve function
+      resolve(parentValue, args) {
+        console.log(args);
+        return axios
+          .post(`http://localhost:3000/users`, {
+            firstName: args.firstName,
+            age: args.age,
+          })
+          .then((res) => {
+            console.log("res", res);
+            return res.data;
+          });
+      },
+    },
+    deleteUser: {
+      type: UserType,
+      args: {
+        id: { type: new GraphQLNonNull(GraphQLString) },
+      },
+      resolve(parentValue, args) {
+        return axios
+          .delete(`http://localhost:3000/users/${args.id}`)
+          .then((res) => res.data);
+      },
+    },
+  },
+});
 
-module.exports = new GraphQLSchema({ query: RootQuery });
+module.exports = new GraphQLSchema({
+  query: RootQuery,
+  mutation: Mutation,
+});
+
+/**
+ * Queries example
+ * 
+ * Nested Queries
+ * 
+query {
+  company(id:"2"){
+    name
+    description
+    users{
+      firstName
+    }
+  }
+}
+
+query getCompany {
+  company(id:"2"){
+    name
+    description
+    users{
+      firstName
+      company{
+        name
+      }
+    }
+  }
+}
+
+====
+
+{
+  company(id: "1") {
+    id,
+    name,
+    description
+  }
+}
+
+
+{
+  company(id:"1"){
+    name
+  }
+}
+
+====
+Calling mutations
+
+mutation{
+  addUser(firstName: "Stephen", age: 26){
+    id,//return id
+    age//age will be returned
+  }
+}
+
+mutation{
+  deleteUser(id: "1"){
+    id,
+    firstName
+  }
+}
+ */

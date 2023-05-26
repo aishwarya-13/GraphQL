@@ -8,7 +8,7 @@ const app = express();
  "graphiql" is a an in browser IDE meant for exporing GraphQL.
 */
 app.use(
-  "/graphQL",
+  "/graphql",
   expressGraphQL({
     schema,
     graphiql: true,

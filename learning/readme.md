@@ -22,4 +22,4 @@ graphql library which helps to actually crawl through our data.
    "scripts": {
    "json:server": "json-server --watch db.json"
    }
-3. Run json server on another terminal npm run json:server -> JSON server runs on another port
+3. Run json server on another terminal using command "npm run json:server" -> JSON server runs on another port
