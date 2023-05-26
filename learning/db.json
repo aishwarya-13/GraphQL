@@ -3,8 +3,7 @@
     {
       "id": "3",
       "firstName": "Ojas",
-      "age": 29,
-      "companyId": "2"
+      "age": 30
     },
     {
       "firstName": "Stephen",
@@ -12,8 +11,8 @@
       "id": "g-M6TzC"
     },
     {
-      "firstName": "Macy",
-      "age": 12,
+      "firstName": "Updated",
+      "age": 1000,
       "id": "yUCYgVD"
     }
   ],

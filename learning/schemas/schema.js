@@ -143,6 +143,25 @@ const Mutation = new GraphQLObjectType({
           .then((res) => res.data);
       },
     },
+    updateUser: {
+      type: UserType,
+      args: {
+        id: {
+          type: new GraphQLNonNull(GraphQLString),
+        },
+        firstName: {
+          type: GraphQLString,
+        },
+        age: {
+          type: GraphQLInt,
+        },
+      },
+      resolve(parentValue, args) {
+        return axios
+          .patch(`http://localhost:3000/users/${args.id}`, args)
+          .then((res) => res.data);
+      },
+    },
   },
 });
 
@@ -208,6 +227,13 @@ mutation{
 
 mutation{
   deleteUser(id: "1"){
+    id,
+    firstName
+  }
+}
+
+mutation{
+  updateUser(id:"3", age: 30){
     id,
     firstName
   }
