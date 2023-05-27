@@ -6,7 +6,9 @@ const bodyParser = require("body-parser");
 const schema = require("./schema/schema");
 
 const app = express();
-
+/**
+ * Addd /test in connection string. Else it wont work
+ */
 // Replace with your mongoLab URI
 const MONGO_URI = "";
 if (!MONGO_URI) {
