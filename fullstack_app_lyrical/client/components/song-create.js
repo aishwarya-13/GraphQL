@@ -39,7 +39,7 @@ class SongCreate extends Component {
       })
       .then(() => hashHistory.push("/")) //here we cannot use this.props.data.refetch() because the query we wanna fire is completely different than the one associated with this component
       .catch((err) => console.log(err));
-    console.log(this.props);
+    //console.log(this.props);
   }
 
   render() {

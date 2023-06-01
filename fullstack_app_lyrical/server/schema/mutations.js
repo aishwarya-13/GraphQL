@@ -15,7 +15,7 @@ const mutation = new GraphQLObjectType({
         title: { type: GraphQLString },
       },
       resolve(parentValue, { title }) {
-        console.log(title);
+        //console.log(title);
         return new Song({ title }).save();
       },
     },

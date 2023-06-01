@@ -17,7 +17,19 @@ import SongCreate from "./components/song-create";
 import "./style/style.css";
 import SongDetail from "./components/song-detail";
 
-const client = new ApolloClient({});
+/**
+ * When Apollo fetches data it has no idea of what piece of data is what.
+ * So we have to help Apollo understand which piece of data is which. This tells
+ * React when certain piece of data updates.
+ * The id returned here is used by Apollo to identify records inside the Apollo store.
+ * Here in LyricCreate component when we add lyric, we need the lyric list to be updated.
+ * So instead of refetching the query, we added an id config below.
+ * So what happens is when a new lyric is added, Apollo tells React that some properties of
+ * this particular song ID just changed and you need to re-render the component
+ */
+const client = new ApolloClient({
+  dataIdFromObject: (o) => o.id,
+});
 
 const Root = () => {
   return (

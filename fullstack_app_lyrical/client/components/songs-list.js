@@ -6,7 +6,7 @@ import fetchSongs from "../queries/fetchSongs";
 
 class SongsList extends Component {
   deleteSong(id) {
-    console.log(id);
+    //console.log(id);
     this.props
       .mutate({
         variables: {
@@ -17,7 +17,7 @@ class SongsList extends Component {
   }
 
   renderSongs() {
-    console.log(this.props);
+    // console.log(this.props);
     return (
       this.props.data.songs &&
       this.props.data.songs.map((song, index) => {
@@ -39,7 +39,7 @@ class SongsList extends Component {
   }
 
   render() {
-    console.log(this.props);
+    // console.log(this.props);
     if (this.props.data.loading) {
       return <div>{`Loading...`}</div>;
     }
