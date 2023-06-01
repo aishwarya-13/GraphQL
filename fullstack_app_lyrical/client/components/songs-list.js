@@ -5,14 +5,33 @@ import { Link } from "react-router";
 import fetchSongs from "../queries/fetchSongs";
 
 class SongsList extends Component {
+  deleteSong(id) {
+    console.log(id);
+    this.props
+      .mutate({
+        variables: {
+          id,
+        },
+      })
+      .then(() => this.props.data.refetch()); //we can use "refetchQueries" here as well
+  }
+
   renderSongs() {
     console.log(this.props);
     return (
       this.props.data.songs &&
       this.props.data.songs.map((song, index) => {
         return (
-          <li key={`songs-${index}`} className={"collection-item"}>
+          <li key={`songs-${song.id}`} className={"collection-item"}>
             {song.title}
+            <i
+              className="material-icons"
+              onClick={() => {
+                this.deleteSong(song.id);
+              }}
+            >
+              delete
+            </i>
           </li>
         );
       })
@@ -36,7 +55,18 @@ class SongsList extends Component {
   }
 }
 
-export default graphql(fetchSongs)(SongsList);
+const mutation = gql`
+  mutation DeleteSong($id: ID) {
+    deleteSong(id: $id) {
+      id
+      title
+    }
+  }
+`;
+
+export default graphql(mutation)(graphql(fetchSongs)(SongsList));
+
+// export default graphql(fetchSongs)(SongsList);
 
 /**
  * data object is provided by the GraphQL library

@@ -37,7 +37,7 @@ class SongCreate extends Component {
         variables: { title: this.state.title },
         refetchQueries: [{ query: fetchSongs }], //query to be fired after song is added. Here we call fetch all songs query
       })
-      .then(() => hashHistory.push("/"))
+      .then(() => hashHistory.push("/")) //here we cannot use this.props.data.refetch() because the query we wanna fire is completely different than the one associated with this component
       .catch((err) => console.log(err));
     console.log(this.props);
   }
